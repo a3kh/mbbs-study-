@@ -1,0 +1,287 @@
+--- START OF FILE index.html ---
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>MBBS Study Generator</title>
+  
+  <!-- PWA & Mobile Optimization -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MBBS Study">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0b0f19">
+  
+  <!-- Web App Manifest (Inline) -->
+  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk1CQlMgU3R1ZHkgR2VuZXJhdG9yIiwKICAic2hvcnRfbmFtZSI6ICJNQkJTIEdlbiIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGIwZjE5IiwKICAidGhlbWVfY29sb3IiOiAiIzdiM2FlZCIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vY2RuLWljb25zLXBuZy5mbGF0aWNvbi5jb20vNTEyLzI4MTgvMjgxODMxMC5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSIKICAgIH1cbiAgXQp9">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Playfair Display"', 'serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    /* Premium thin scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #111827; }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 9999px; }
+    
+    /* Ensure content doesn't get cut off by mobile notches */
+    body {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    button, select, div { -webkit-tap-highlight-color: transparent; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .animate-spin-custom { animation: spin 1s linear infinite; }
+  </style>
+</head>
+<body class="bg-[#0b0f19] text-gray-100 font-sans min-h-screen flex flex-col antialiased selection:bg-purple-500/30 selection:text-purple-200">
+
+  <!-- Header Banner -->
+  <header id="app-header" class="border-b transition-colors duration-300 border-purple-500/20 bg-gradient-to-br from-purple-950/20 to-[#0b0f19] px-4 py-5 sm:px-6 md:px-8">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div class="flex items-center justify-between w-full md:w-auto">
+        <div class="flex items-center gap-3">
+          <span id="subject-emoji" class="text-3xl sm:text-4xl filter drop-shadow-md">🦴</span>
+          <div>
+            <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight font-serif flex items-center gap-2">
+              MBBS Generator
+            </h1>
+            <p class="text-xs sm:text-sm text-gray-400 mt-0.5">V2.5 Premium Medical Engine</p>
+          </div>
+        </div>
+        <button id="btn-open-settings-mobile" class="md:hidden p-2 text-gray-400 hover:text-white bg-gray-900 border border-gray-800 rounded-lg">🔑</button>
+      </div>
+      
+      <div class="flex flex-wrap items-center gap-3" id="header-controls">
+        <div class="flex flex-wrap gap-2" id="subject-tabs-container"></div>
+        <button id="btn-open-settings" class="hidden md:flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-full text-gray-400 bg-gray-900 border border-gray-800 hover:text-gray-200 hover:bg-gray-800 transition-all cursor-pointer">
+          <span>🔑</span> API Settings
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <!-- Left Panel -->
+    <section class="lg:col-span-4 flex flex-col gap-4 w-full">
+      <div class="bg-[#121826] border border-gray-800 rounded-xl p-4 shadow-lg">
+        <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Step 1: Chapter</label>
+        <select id="chapter-select" class="w-full bg-[#1b2336] border border-gray-700 rounded-lg py-2.5 px-3 text-sm text-gray-200 focus:ring-2 focus:ring-purple-500 outline-none transition-all"></select>
+      </div>
+
+      <div id="topic-container" class="bg-[#121826] border border-gray-800 rounded-xl p-4 shadow-lg hidden">
+        <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Step 2: Topic</label>
+        <div id="topic-list" class="flex flex-col gap-1.5 max-h-[220px] overflow-y-auto pr-1"></div>
+      </div>
+
+      <div class="bg-[#121826] border border-gray-800 rounded-xl p-4 shadow-lg">
+        <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2.5">Step 3: Content Type</label>
+        <div class="flex flex-col gap-2" id="content-type-container"></div>
+      </div>
+
+      <button id="btn-generate" disabled class="w-full py-4 rounded-xl font-bold text-sm tracking-wide shadow-md transition-all duration-300 bg-gray-700 text-gray-400 cursor-not-allowed">
+        Select a Topic First
+      </button>
+
+      <div id="history-container" class="bg-[#121826] border border-gray-800 rounded-xl p-4 shadow-lg hidden">
+        <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Recent Generations</label>
+        <div id="history-list" class="flex flex-col gap-1.5 max-h-[180px] overflow-y-auto pr-1"></div>
+      </div>
+    </section>
+
+    <!-- Right Panel -->
+    <section class="lg:col-span-8 bg-[#121826] border border-gray-800 rounded-xl min-h-[500px] shadow-lg overflow-hidden flex flex-col w-full">
+      <div id="output-header" class="hidden px-5 py-4 border-b border-gray-800 bg-[#161d2f] flex flex-row items-center justify-between gap-3 flex-wrap">
+        <div>
+          <span id="output-meta" class="text-[10px] font-extrabold uppercase tracking-wider text-purple-400"></span>
+          <h2 id="output-title" class="text-sm font-bold text-white mt-0.5"></h2>
+        </div>
+        <button id="btn-copy" class="px-3 py-1.5 rounded-lg border border-gray-700 bg-[#1a2337] text-xs font-semibold text-gray-300">Copy Result</button>
+      </div>
+
+      <div class="p-5 sm:p-8 flex-1 flex flex-col justify-center" id="output-viewport">
+        <div id="state-idle" class="text-center max-w-sm mx-auto py-12">
+          <span class="text-5xl">📚</span>
+          <h3 class="text-lg font-bold text-white font-serif mt-4">Awaiting Selection</h3>
+          <p class="text-xs text-gray-400 mt-2">Choose a subject, chapter, and topic to generate professional medical notes.</p>
+        </div>
+
+        <div id="state-loading" class="hidden text-center py-16 flex flex-col items-center gap-4">
+          <div class="relative w-14 h-14">
+            <div id="spinner-ring" class="absolute inset-0 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin-custom"></div>
+          </div>
+          <p class="text-gray-200 font-bold">Consulting Expert References...</p>
+        </div>
+
+        <div id="state-error" class="hidden bg-red-950/20 border border-red-900/60 rounded-xl p-5 text-center">
+            <h4 id="error-title" class="text-red-400 font-bold">Generation Failure</h4>
+            <p id="error-message" class="text-xs text-gray-300 mt-2 font-mono text-left"></p>
+            <button onclick="openSettingsModal()" class="mt-4 text-xs bg-purple-600 px-3 py-2 rounded-lg font-bold">Set API Key</button>
+        </div>
+
+        <article id="output-content" class="hidden text-gray-100 prose prose-invert max-w-none text-sm sm:text-base"></article>
+      </div>
+    </section>
+  </main>
+
+  <!-- API Settings Modal -->
+  <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-[#121826] border border-gray-800 rounded-xl p-6 max-w-md w-full shadow-2xl">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-bold text-white font-serif">🔑 Gemini API Key</h3>
+        <button id="btn-close-settings" class="text-gray-400 text-lg">✕</button>
+      </div>
+      <input type="password" id="input-api-key" placeholder="AIzaSy..." class="w-full bg-[#1b2336] border border-gray-700 rounded-lg py-3 px-4 text-sm text-gray-200 outline-none mb-4">
+      <p class="text-[10px] text-gray-500 mb-4">Get a free key at <a href="https://aistudio.google.com/" target="_blank" class="text-purple-400">Google AI Studio</a>.</p>
+      <div class="flex justify-end gap-2">
+        <button id="btn-clear-key" class="px-4 py-2 text-xs text-red-400">Clear Key</button>
+        <button id="btn-save-key" class="px-6 py-2 bg-purple-600 rounded-lg text-xs font-bold text-white">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-5 right-5 z-50 bg-green-900/90 text-white px-4 py-3 rounded-xl transform translate-y-12 opacity-0 transition-all duration-300 text-xs font-bold"></div>
+
+  <script>
+    // --- DATA & APP LOGIC ---
+    // (Preserving your TOPICS and CONTENT_TYPES logic here)
+    const TOPICS = {
+      ANATOMY: { color: "#7C3AED", icon: "🦴", subtopics: { "General Anatomy": ["Classification of Epithelium","Connective Tissue","Cartilage","Muscles","Bone"], "Upper Limb": ["Brachial Plexus","Shoulder Joint","Breast"], "Lower Limb": ["Hip Joint","Knee Joint"], "Thorax": ["Blood Supply of Heart","Lungs"], "Abdomen": ["Kidney","Liver"], "Neuroanatomy": ["Blood Supply of Brain","Spinal Cord"] } },
+      PHYSIOLOGY: { color: "#059669", icon: "💓", subtopics: { "General Physiology": ["Sodium Potassium ATPase","Cell Junctions"], "Hematology": ["Erythropoiesis","Blood Coagulation"], "CVS": ["ECG","Cardiac Cycle"], "Respiratory": ["Lung Volumes","Oxygen Transport"] } },
+      BIOCHEMISTRY: { color: "#DC2626", icon: "🧬", subtopics: { "Enzymology": ["Marker Enzymes","Enzyme Inhibition"], "Carbohydrates": ["Glycolysis","TCA Cycle"], "Vitamins": ["Vitamin A","Vitamin D"], "Molecular Biology": ["DNA Replication","PCR"] } }
+    };
+
+    const CONTENT_TYPES = [
+      { id: "long_essay", label: "Long Essay", icon: "📄", desc: "Detailed notes (800-1200 words)" },
+      { id: "short_note", label: "Short Note", icon: "🗒️", desc: "High-yield points (200-350 words)" },
+      { id: "mcq", label: "MCQs", icon: "✅", desc: "5 Clinical MCQs + Explanations" }
+    ];
+
+    let state = { selectedSubject: "ANATOMY", selectedChapter: "", selectedTopic: "", contentType: "short_note", loading: false, history: [] };
+
+    // API Handling
+    async function callGeminiAPI(prompt, systemPrompt) {
+      const activeKey = localStorage.getItem("mbbs_study_gemini_api_key");
+      if (!activeKey) throw new Error("Missing API Key");
+
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${activeKey}`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          systemInstruction: { parts: [{ text: systemPrompt }] }
+        })
+      });
+
+      if (!response.ok) throw new Error("API Error: " + response.status);
+      const data = await response.json();
+      return data.candidates[0].content.parts[0].text;
+    }
+
+    // UI Rendering
+    function initUI() {
+      renderSubjectTabs();
+      populateChapters();
+      renderContentTypes();
+      attachEvents();
+    }
+
+    function renderSubjectTabs() {
+      const container = document.getElementById("subject-tabs-container");
+      container.innerHTML = "";
+      Object.keys(TOPICS).forEach(key => {
+        const btn = document.createElement("button");
+        const isActive = state.selectedSubject === key;
+        btn.className = `px-4 py-2 rounded-full font-bold text-xs flex items-center gap-2 border transition-all ${isActive ? 'text-white' : 'text-gray-400 bg-gray-900 border-gray-800'}`;
+        if (isActive) btn.style.backgroundColor = TOPICS[key].color;
+        btn.innerHTML = `<span>${TOPICS[key].icon}</span> ${key}`;
+        btn.onclick = () => { state.selectedSubject = key; state.selectedChapter = ""; state.selectedTopic = ""; initUI(); updateStyles(); };
+        container.appendChild(btn);
+      });
+    }
+
+    function populateChapters() {
+      const select = document.getElementById("chapter-select");
+      select.innerHTML = '<option value="">— Select Chapter —</option>';
+      Object.keys(TOPICS[state.selectedSubject].subtopics).forEach(ch => {
+        const opt = document.createElement("option");
+        opt.value = ch; opt.innerText = ch;
+        select.appendChild(opt);
+      });
+      renderTopics();
+    }
+
+    function renderTopics() {
+      const container = document.getElementById("topic-container");
+      const list = document.getElementById("topic-list");
+      if (!state.selectedChapter) { container.classList.add("hidden"); return; }
+      container.classList.remove("hidden");
+      list.innerHTML = "";
+      TOPICS[state.selectedSubject].subtopics[state.selectedChapter].forEach(t => {
+        const btn = document.createElement("button");
+        const isSel = state.selectedTopic === t;
+        btn.className = `w-full text-left py-2 px-3 rounded-lg border text-xs font-semibold ${isSel ? 'bg-purple-600 text-white border-transparent' : 'border-gray-800 text-gray-400'}`;
+        btn.innerText = t;
+        btn.onclick = () => { state.selectedTopic = t; renderTopics(); updateStyles(); };
+        list.appendChild(btn);
+      });
+    }
+
+    function renderContentTypes() {
+      const container = document.getElementById("content-type-container");
+      container.innerHTML = "";
+      CONTENT_TYPES.forEach(type => {
+        const isSel = state.contentType === type.id;
+        const btn = document.createElement("button");
+        btn.className = `w-full p-3 rounded-lg border flex items-center gap-3 ${isSel ? 'border-purple-500 bg-purple-500/10' : 'border-gray-800 bg-gray-900/50'}`;
+        btn.innerHTML = `<span class="text-xl">${type.icon}</span> <div class="text-left"><p class="text-xs font-bold text-white">${type.label}</p><p class="text-[10px] text-gray-500">${type.desc}</p></div>`;
+        btn.onclick = () => { state.contentType = type.id; renderContentTypes(); updateStyles(); };
+        container.appendChild(btn);
+      });
+    }
+
+    function updateStyles() {
+      const btn = document.getElementById("btn-generate");
+      if (state.selectedTopic && !state.loading) {
+        btn.disabled = false;
+        btn.className = "w-full py-4 rounded-xl font-bold text-sm bg-purple-600 text-white shadow-lg shadow-purple-500/20";
+        btn.innerText = "✨ Generate Now";
+      } else {
+        btn.disabled = true;
+        btn.className = "w-full py-4 rounded-xl font-bold text-sm bg-gray-800 text-gray-500 cursor-not-allowed";
+        btn.innerText = state.loading ? "⌛ Generating..." : "Select a Topic First";
+      }
+    }
+
+    async function handleGenerate() {
+      state.loading = true; updateStyles();
+      document.getElementById("state-idle").classList.add("hidden");
+      document.getElementById("state-error").classList.add("hidden");
+      document.getElementById("output-content").classList.add("hidden");
+      document.getElementById("state-loading").classList.remove("hidden");
+
+      try {
+        const prompt = `Write a ${state.contentType} on ${state.sele
